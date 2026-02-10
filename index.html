@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="styles.css">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 for Popups -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -237,22 +239,18 @@
                             </div>
                         </div>
                     </div>
-                    <form class="contact-form" action="https://formsubmit.co/sv7879075753@gmail.com" method="POST">
-                        <!-- Redirection and honeypot -->
-                        <input type="hidden" name="_subject" value="New Inquiry from Website">
-                        <input type="hidden" name="_captcha" value="false">
-
+                    <form class="contact-form">
                         <div class="form-group">
-                            <input type="text" name="name" placeholder="Your Name" required>
+                            <input type="text" placeholder="Your Name" required>
                         </div>
                         <div class="form-group">
-                            <input type="email" name="email" placeholder="Your Email" required>
+                            <input type="email" placeholder="Your Email" required>
                         </div>
                         <div class="form-group">
-                            <input type="tel" name="phone" placeholder="Your Phone" required>
+                            <input type="tel" placeholder="Your Phone" required>
                         </div>
                         <div class="form-group">
-                            <textarea name="message" placeholder="Message" rows="5" required></textarea>
+                            <textarea placeholder="Message" rows="5" required></textarea>
                         </div>
                         <button type="submit" class="btn-primary">Send Message</button>
                     </form>

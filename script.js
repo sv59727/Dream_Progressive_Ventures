@@ -66,14 +66,37 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(section);
     });
 
-    // Form Submission Handler for Local Testing check
+    // Form Submission Handler
     const contactForm = document.querySelector('.contact-form');
     if (contactForm) {
         contactForm.addEventListener('submit', (e) => {
-            if (window.location.protocol === 'file:') {
-                e.preventDefault();
-                alert("This form uses a secure email service (FormSubmit) that requires a live web server to work.\n\nIt will NOT work when opening the HTML file directly on your computer.\n\nOnce you upload your website to the internet, this form will work perfectly!");
-            }
+            e.preventDefault();
+
+            // Get form values
+            const inputs = contactForm.querySelectorAll('input, textarea');
+            const name = inputs[0].value;
+            const email = inputs[1].value;
+            const phone = inputs[2].value;
+            const message = inputs[3].value;
+
+            // Construct Email Body
+            const subject = `New Inquiry from Website - ${name}`;
+            const body = `Name: ${name}%0D%0AEmail: ${email}%0D%0APhone: ${phone}%0D%0A%0D%0AMessage:%0D%0A${message}`;
+
+            // Open Mail Client
+            window.location.href = `mailto:sv7879075753@gmail.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+
+            // Show feedback using SweetAlert2
+            // Use a short timeout to ensure the mailto link has processed
+            setTimeout(() => {
+                Swal.fire({
+                    title: 'Redirecting...',
+                    text: 'Opening your email client to send the message.',
+                    icon: 'success',
+                    confirmButtonColor: '#1a3c34', // Primary color
+                    confirmButtonText: 'OK'
+                });
+            }, 500);
         });
     }
 
