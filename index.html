@@ -33,6 +33,8 @@
                     <li><a href="#about">About</a></li>
                     <li><a href="#why-us">Why Us</a></li>
                     <li><a href="#contact" class="btn-primary">Contact Us</a></li>
+                    <li><button id="adminLoginBtn" class="btn-admin-nav" onclick="handleAdminAuth()"><i
+                                class="fas fa-lock"></i> Admin</button></li>
                 </ul>
                 <button class="mobile-menu-btn" aria-label="Toggle Menu">
                     <i class="fas fa-bars"></i>
@@ -69,11 +71,21 @@
                         <div class="icon-box"><i class="fas fa-home"></i></div>
                         <h3>Home Buying</h3>
                         <p>Expert guidance to find the perfect property that matches your lifestyle and budget.</p>
+                        <div class="view-sites-wrapper" id="homeBuyingActions">
+                            <button class="btn-view-sites" onclick="handleCategoryAction('sites')">
+                                <span class="btn-text">View Sites</span> <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-card">
                         <div class="icon-box"><i class="fas fa-hand-holding-usd"></i></div>
                         <h3>Home Selling</h3>
                         <p>Strategic marketing to sell your property at the best market price.</p>
+                        <div class="view-sites-wrapper" id="sellingActions">
+                            <button class="btn-view-sites" onclick="handleCategoryAction('selling')">
+                                <span class="btn-text">Sell Property</span> <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-card">
                         <div class="icon-box"><i class="fas fa-tasks"></i></div>
@@ -84,11 +96,21 @@
                         <div class="icon-box"><i class="fas fa-chart-line"></i></div>
                         <h3>Market Analysis</h3>
                         <p>In-depth insights into real estate trends to inform your investment decisions.</p>
+                        <div class="view-sites-wrapper" id="marketActions">
+                            <button class="btn-view-sites" onclick="handleCategoryAction('market')">
+                                <span class="btn-text">Market News</span> <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-card">
                         <div class="icon-box"><i class="fas fa-map-marked-alt"></i></div>
                         <h3>Residential Plots</h3>
                         <p>Premium plots in prime locations ready for your dream home construction.</p>
+                        <div class="view-sites-wrapper" id="plotsActions">
+                            <button class="btn-view-sites" onclick="handleCategoryAction('plots')">
+                                <span class="btn-text">View Plots</span> <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="service-card">
                         <div class="icon-box"><i class="fas fa-building"></i></div>
@@ -286,6 +308,65 @@
             <p class="copyright">&copy; 2026 Dream Progressive Ventures. All rights reserved.</p>
         </div>
     </footer>
+
+    <!-- ===== SITES MANAGEMENT MODALS ===== -->
+
+    <!-- Add Site Modal -->
+    <div class="modal-overlay" id="addSiteModal">
+        <div class="modal-box modal-large">
+            <button class="modal-close" onclick="closeAddSiteModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-icon add-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <h3>Add New Site</h3>
+            <p>Upload property photos and details for visitors to explore.</p>
+            <div class="modal-form-group">
+                <input type="text" id="siteAddress" placeholder="Property Address (e.g. Plot 12, Sehore Road, Bhopal)"
+                    maxlength="200">
+            </div>
+            <div class="modal-form-group">
+                <input type="text" id="siteTitle" placeholder="Property Title (e.g. 3BHK Luxury Villa)" maxlength="100">
+            </div>
+            <div class="modal-form-group">
+                <textarea id="siteDescription" placeholder="Property Description (price, area, features...)"
+                    rows="3"></textarea>
+            </div>
+            <div class="photo-upload-area" id="photoUploadArea" onclick="document.getElementById('photoInput').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to upload photos</p>
+                <span>JPG, PNG, WEBP supported</span>
+                <input type="file" id="photoInput" accept="image/*" multiple style="display:none;"
+                    onchange="previewPhotos(this)">
+            </div>
+            <div class="photo-preview-grid" id="photoPreviewGrid"></div>
+            <div class="modal-action-row">
+                <button class="modal-btn-primary" onclick="saveSite()"><i class="fas fa-save"></i> Save Site</button>
+                <button class="modal-btn-manage" onclick="openOwnerGallery()"
+                    title="Manage & delete your listed properties">
+                    <i class="fas fa-trash-alt"></i> My Listings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Sites Modal -->
+    <div class="modal-overlay" id="viewSitesModal">
+        <div class="modal-box modal-gallery">
+            <button class="modal-close" onclick="closeOwnerGallery()"><i class="fas fa-times"></i></button>
+            <div class="modal-header-row">
+                <div class="modal-icon view-icon"><i class="fas fa-home"></i></div>
+                <div>
+                    <h3 id="galleryModeTitle">Available Properties</h3>
+                    <p id="galleryModeSub">Browse all listed properties by DPV</p>
+                </div>
+            </div>
+            <div class="sites-gallery" id="sitesGallery"></div>
+        </div>
+    </div>
+
+    <!-- Image Lightbox -->
+    <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+        <img id="lightboxImg" src="" alt="Property Photo">
+    </div>
 
     <script src="script.js"></script>
 </body>
