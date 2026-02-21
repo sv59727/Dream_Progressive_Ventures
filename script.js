@@ -10,6 +10,12 @@ import {
     orderBy,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 /* ====================================================
    FIREBASE CONFIGURATION
@@ -27,8 +33,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-const OWNER_PASSWORD = 'sonu@123';
 let activeCategory = 'sites';
 let uploadedPhotosBase64 = [];
 
@@ -142,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Initialize System
+    onAuthStateChanged(auth, (user) => {
+        updateAdminUI();
+    });
+
     initSystem();
 });
 
@@ -150,21 +161,25 @@ document.addEventListener('DOMContentLoaded', () => {
    ==================================================== */
 
 async function initSystem() {
-    updateAdminUI();
-    await attemptCloudMigration();
+    // UI update handled by onAuthStateChanged
 }
 
 async function getData(category) {
     try {
-        const q = query(collection(db, category), orderBy("timestamp", "desc"));
-        const snapshot = await getDocs(q);
-        return snapshot.docs.map(docSnap => ({
+        const snapshot = await getDocs(collection(db, category));
+        const data = snapshot.docs.map(docSnap => ({
             id: docSnap.id,
             ...docSnap.data()
         }));
+        // Sort locally by timestamp since server-side orderBy requires manual indexes
+        return data.sort((a, b) => {
+            const timeA = a.timestamp?.seconds || 0;
+            const timeB = b.timestamp?.seconds || 0;
+            return timeB - timeA;
+        });
     } catch (e) {
         console.error("Firestore Read Error:", e);
-        return getLocalFallback(category);
+        return [];
     }
 }
 
@@ -174,7 +189,7 @@ async function saveData(category, item) {
         await addDoc(collection(db, category), item);
     } catch (e) {
         console.error("Firestore Write Error:", e);
-        saveLocalFallback(category, item);
+        alert("Failed to save: " + e.message);
     }
 }
 
@@ -187,83 +202,48 @@ async function deleteFromCloud(category, docId) {
 }
 
 /* ====================================================
-   LOCAL FALLBACK & MIGRATION
-   ==================================================== */
-function getLocalFallback(category) {
-    const data = localStorage.getItem('dpv_local_' + category);
-    return data ? JSON.parse(data) : [];
-}
-
-function saveLocalFallback(category, item) {
-    const data = getLocalFallback(category);
-    data.unshift({ ...item, id: Date.now() });
-    localStorage.setItem('dpv_local_' + category, JSON.stringify(data));
-}
-
-function deleteLocalFallback(category, id) {
-    const data = getLocalFallback(category).filter(i => i.id !== id);
-    localStorage.setItem('dpv_local_' + category, JSON.stringify(data));
-}
-
-async function attemptCloudMigration() {
-    const migrated = localStorage.getItem('dpv_cloud_migrated');
-    if (migrated) return;
-
-    const categories = ['sites', 'plots', 'market', 'selling'];
-    for (const cat of categories) {
-        const localData = getLocalFallback(cat);
-        for (const item of localData) {
-            await saveData(cat, item);
-        }
-    }
-    localStorage.setItem('dpv_cloud_migrated', 'true');
-}
-
-/* ====================================================
    UI HANDLERS
    ==================================================== */
 
 function handleAdminAuth() {
-    if (sessionStorage.getItem('adminAuth') === 'true') {
-        Swal.fire({
-            title: 'Logout Admin?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, Logout',
-            confirmButtonColor: '#c0392b'
-        }).then(result => {
-            if (result.isConfirmed) {
-                sessionStorage.removeItem('adminAuth');
-                updateAdminUI();
-                Swal.fire({ title: 'Logged Out', icon: 'success', timer: 1000, showConfirmButton: false });
-            }
+    if (auth.currentUser) {
+        signOut(auth).then(() => {
+            updateAdminUI();
+            Swal.fire({ title: 'Logged Out', icon: 'success', timer: 1000, showConfirmButton: false });
         });
         return;
     }
 
     Swal.fire({
         title: 'Admin Login',
-        input: 'password',
-        inputPlaceholder: 'Enter admin password',
-        inputAttributes: { autocapitalize: 'off', autocorrect: 'off' },
-        showCancelButton: true,
+        html: `
+            <input id="adminEmail" class="swal2-input" placeholder="Email">
+            <input id="adminPassword" type="password" class="swal2-input" placeholder="Password">
+        `,
         confirmButtonText: 'Login',
         confirmButtonColor: '#1a3c34',
-    }).then((result) => {
-        if (result.isConfirmed) {
-            if (result.value === OWNER_PASSWORD) {
-                sessionStorage.setItem('adminAuth', 'true');
-                updateAdminUI();
-                Swal.fire({ title: 'Welcome Admin!', icon: 'success', timer: 1500, showConfirmButton: false });
-            } else {
-                Swal.fire({ title: 'Incorrect Password', icon: 'error', confirmButtonColor: '#1a3c34' });
+        focusConfirm: false,
+        preConfirm: () => {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            if (!email || !password) {
+                Swal.showValidationMessage('Please enter both email and password');
+                return false;
             }
+            return signInWithEmailAndPassword(auth, email, password)
+                .catch(error => {
+                    Swal.showValidationMessage('Login Failed: ' + error.message);
+                });
+        }
+    }).then(result => {
+        if (result.isConfirmed) {
+            updateAdminUI();
         }
     });
 }
 
 function updateAdminUI() {
-    const isAdmin = sessionStorage.getItem('adminAuth') === 'true';
+    const isAdmin = !!auth.currentUser;
     const loginBtn = document.getElementById('adminLoginBtn');
     if (loginBtn) {
         loginBtn.innerHTML = isAdmin ? '<i class="fas fa-unlock"></i> Logout' : '<i class="fas fa-lock"></i> Admin';
@@ -314,7 +294,7 @@ function refreshCategoryButtons(isAdmin) {
 }
 
 function handleCategoryAction(category) {
-    if (category === 'selling' && sessionStorage.getItem('adminAuth') !== 'true') {
+    if (category === 'selling' && !auth.currentUser) {
         openAddModal('selling');
     } else {
         openViewGallery(category);
@@ -360,7 +340,7 @@ function prepareAddForm() {
     const descInput = document.getElementById('siteDescription');
     const manageBtn = document.querySelector('#addSiteModal .modal-btn-manage');
     const saveBtn = document.querySelector('#addSiteModal .modal-btn-primary');
-    const isAdmin = sessionStorage.getItem('adminAuth') === 'true';
+    const isAdmin = !!auth.currentUser;
 
     if (manageBtn) manageBtn.style.display = isAdmin ? 'flex' : 'none';
 
@@ -398,7 +378,32 @@ function prepareAddForm() {
 function previewPhotos(input) {
     const grid = document.getElementById('photoPreviewGrid');
     const files = Array.from(input.files);
+
+    const currentPhotosCount = uploadedPhotosBase64.filter(p => p !== null).length;
+
+    // Safety check: Max 3 photos total
+    if (currentPhotosCount + files.length > 3) {
+        Swal.fire({
+            title: "Limit Exceeded",
+            text: "To stay within free storage limits, please upload maximum 3 photos per property.",
+            icon: "warning",
+            confirmButtonColor: "#1a3c34"
+        });
+        return;
+    }
+
     files.forEach(file => {
+        // Safety check: 5MB File size limit
+        if (file.size > 5 * 1024 * 1024) {
+            Swal.fire({
+                title: "File Too Large",
+                text: `${file.name} is over 5MB. Please choose a smaller file.`,
+                icon: "error",
+                confirmButtonColor: "#c0392b"
+            });
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = async function (e) {
             const rawBase64 = e.target.result;
@@ -419,23 +424,33 @@ function previewPhotos(input) {
     input.value = '';
 }
 
-function compressImage(base64Str, maxWidth = 1200, quality = 0.7) {
+function compressImage(base64Str, maxWidth = 900, quality = 0.6) {
     return new Promise((resolve) => {
         const img = new Image();
         img.src = base64Str;
+
         img.onload = () => {
             const canvas = document.createElement('canvas');
+
             let width = img.width;
             let height = img.height;
+
+            // Resize if larger than maxWidth
             if (width > maxWidth) {
                 height = (maxWidth / width) * height;
                 width = maxWidth;
             }
+
             canvas.width = width;
             canvas.height = height;
+
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
+
+            // Force JPEG output (smaller than PNG)
+            const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+
+            resolve(compressedBase64);
         };
     });
 }
@@ -470,7 +485,7 @@ async function saveSite() {
 
 async function openViewGallery(category) {
     activeCategory = category;
-    const isAdmin = sessionStorage.getItem('adminAuth') === 'true';
+    const isAdmin = !!auth.currentUser;
     await renderGallery(isAdmin, category);
     showModal('viewSitesModal');
 }
@@ -520,7 +535,7 @@ async function renderGallery(ownerMode, category) {
 }
 
 async function deleteItem(id) {
-    if (sessionStorage.getItem('adminAuth') !== 'true') return;
+    if (!auth.currentUser) return;
     const result = await Swal.fire({ title: 'Delete entry?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#c0392b' });
     if (result.isConfirmed) {
         await deleteFromCloud(activeCategory, id);
