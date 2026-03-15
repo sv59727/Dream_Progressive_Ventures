@@ -266,7 +266,7 @@ function updateAdminUI() {
             adminBtn.classList.remove('admin-logged-in');
         }
     }
-    refreshCategoryButtons();
+    refreshCategoryButtons(isAdmin);
     loadReviews(); // Refresh reviews to show/hide delete buttons
 }
 
