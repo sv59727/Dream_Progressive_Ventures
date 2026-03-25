@@ -858,7 +858,7 @@ function openReviewModal() {
     document.getElementById('reviewService').value = '';
     document.getElementById('reviewLocation').value = '';
     document.getElementById('reviewPropType').value = '';
-    
+
     // Reset radio buttons
     document.querySelectorAll('input[name="reviewRecommend"]').forEach(r => r.checked = false);
 
@@ -1011,11 +1011,11 @@ async function loadReviews() {
             ${photoHTML ? `<div class="review-photos">${photoHTML}</div>` : ''}
             
             <div class="review-footer">
-                ${r.recommend === 'Yes' 
-                    ? `<div class="review-recommend yes"><i class="fas fa-thumbs-up"></i> Recommends DPV</div>`
-                    : r.recommend === 'No' 
-                        ? `<div class="review-recommend no"><i class="fas fa-thumbs-down"></i> Does not recommend</div>` 
-                        : ''}
+                ${r.recommend === 'Yes'
+                ? `<div class="review-recommend yes"><i class="fas fa-thumbs-up"></i> Recommends DPV</div>`
+                : r.recommend === 'No'
+                    ? `<div class="review-recommend no"><i class="fas fa-thumbs-down"></i> Does not recommend</div>`
+                    : ''}
                 <div class="review-date">${r.date}</div>
             </div>`;
         grid.appendChild(card);
@@ -1064,3 +1064,39 @@ window.previewReviewPhotos = previewReviewPhotos;
 window.removeReviewPhoto = removeReviewPhoto;
 window.saveReview = saveReview;
 window.deleteReview = deleteReview;
+
+/* ====================================================
+   HERO MOUSE PARALLAX
+   ==================================================== */
+function initHeroParallax() {
+    const heroBg = document.getElementById('heroBg');
+    const heroContent = document.getElementById('heroContent');
+    if (!heroBg || !heroContent) return;
+
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
+
+    window.addEventListener('mousemove', (e) => {
+        targetX = (e.clientX / window.innerWidth) - 0.5;
+        targetY = (e.clientY / window.innerHeight) - 0.5;
+    });
+
+    function parallaxLoop() {
+        currentX += (targetX - currentX) * 0.055;
+        currentY += (targetY - currentY) * 0.055;
+        
+        // Background wrapper moves opposite to mouse
+        heroBg.style.transform = `translate(${currentX * -20}px, ${currentY * -20}px)`;
+        // Content moves slightly in same direction
+        heroContent.style.transform = `translate(${currentX * 5}px, ${currentY * 5}px)`;
+        
+        requestAnimationFrame(parallaxLoop);
+    }
+    parallaxLoop();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeroParallax);
+} else {
+    initHeroParallax();
+}
