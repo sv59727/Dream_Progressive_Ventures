@@ -321,7 +321,10 @@ header {
 
 .hero-bg {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-image: url('https://images.unsplash.com/photo-1600596542815-3ad19fb2a258?ixlib=rb-4.0.3&auto=format&fit=crop&w=2074&q=80');
     background-size: cover;
     background-position: center;
@@ -330,13 +333,21 @@ header {
 }
 
 @keyframes kenBurns {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.08); }
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.08);
+    }
 }
 
 .hero-overlay-dark {
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: rgba(13, 31, 27, 0.65);
     z-index: 1;
 }
@@ -415,7 +426,8 @@ header {
     animation: luxuriousEntrance 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 1.2s;
 }
 
-.btn-hero-solid, .btn-hero-outline {
+.btn-hero-solid,
+.btn-hero-outline {
     padding: 1rem 2.5rem;
     font-size: 0.85rem;
     letter-spacing: 2px;
@@ -450,11 +462,17 @@ header {
 }
 
 @keyframes luxuriousEntrance {
-    to { opacity: 1; transform: translateY(0); }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes slideUpTitle {
-    to { transform: translateY(0); opacity: 1; }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 /* Scroll Indicator */
@@ -490,7 +508,8 @@ header {
 .scroll-line::before {
     content: '';
     position: absolute;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     background: #c5a059;
@@ -498,9 +517,17 @@ header {
 }
 
 @keyframes scrollPulse {
-    0% { transform: translateY(-100%); }
-    50% { transform: translateY(0); }
-    100% { transform: translateY(100%); }
+    0% {
+        transform: translateY(-100%);
+    }
+
+    50% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(100%);
+    }
 }
 
 /* Services Grid */
@@ -693,6 +720,50 @@ header {
     opacity: 0.9;
 }
 
+.cta-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.cta-buttons .btn-light,
+.cta-buttons .btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-whatsapp {
+    background-color: #25D366;
+    color: var(--white);
+    border: 2px solid #25D366;
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    transition: all 0.2s ease-out;
+}
+
+.btn-whatsapp:hover {
+    background-color: #20ba5a;
+    border-color: #20ba5a;
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+}
+
+.btn-whatsapp:active {
+    transform: scale(0.97);
+}
+
 /* Contact Section */
 .contact-wrapper {
     display: grid;
@@ -876,18 +947,44 @@ footer {
         text-align: center;
     }
 
-    .hero { min-height: 100vh; height: auto; flex-direction: column; justify-content: center; }
-    .hero-content-new { padding-top: 60px; /* offset for header to stay centered visually */ }
-    .hero-h1-line { font-size: 50px; }
-    .hero-label-wrap { gap: 0.5rem; margin-bottom: 1.5rem; }
-    .hero-label { font-size: 0.65rem; }
-    .hero-subtitle-new { font-size: 1rem; margin: 1.5rem auto 2.5rem; line-height: 1.6; }
-    
-    .hero-buttons-new { 
-        gap: 1rem; 
+    .hero {
+        min-height: 100vh;
+        height: auto;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .hero-content-new {
+        padding-top: 60px;
+        /* offset for header to stay centered visually */
+    }
+
+    .hero-h1-line {
+        font-size: 50px;
+    }
+
+    .hero-label-wrap {
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-label {
+        font-size: 0.65rem;
+    }
+
+    .hero-subtitle-new {
+        font-size: 1rem;
+        margin: 1.5rem auto 2.5rem;
+        line-height: 1.6;
+    }
+
+    .hero-buttons-new {
+        gap: 1rem;
         padding: 0;
     }
-    .btn-hero-solid, .btn-hero-outline {
+
+    .btn-hero-solid,
+    .btn-hero-outline {
         padding: 1.2rem 0.5rem;
         font-size: 0.75rem;
         letter-spacing: 1.5px;
@@ -898,7 +995,10 @@ footer {
         align-items: center;
         justify-content: center;
     }
-    .scroll-indicator { display: none; }
+
+    .scroll-indicator {
+        display: none;
+    }
 
     .about-wrapper,
     .contact-wrapper {
@@ -915,8 +1015,13 @@ footer {
 }
 
 @media (max-width: 480px) {
-    .hero-h1-line { font-size: 42px; }
-    .hero-subtitle-new { font-size: 0.95rem; }
+    .hero-h1-line {
+        font-size: 42px;
+    }
+
+    .hero-subtitle-new {
+        font-size: 0.95rem;
+    }
 
     .section-header h2 {
         font-size: 2rem;
